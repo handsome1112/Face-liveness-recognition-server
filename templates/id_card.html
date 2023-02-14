@@ -1,0 +1,386 @@
+<html>
+    <head>
+        <!-- Favicon-->
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+        <title>Faceit :: ID_Card verification</title>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style type="text/css">
+            #input {
+                display: flex;
+                width: 100vw;
+                height: 100vh;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #camera_input {
+                position: relative;
+                margin: 0%;
+                float: center;
+                padding: 0%;
+                width: 100vw;
+                text-align: center;
+            
+            }
+            @media only screen and (max-device-width:320px ) {
+                #myVideo {
+                    width: 87.2vw !important;
+                    height: 30.092vh !important;
+                }
+            }
+
+            @media only screen and (min-device-width:321px) and (max-device-width:375px){
+                #myVideo {
+                    width: 87.2vw !important;
+                    height: 30.092vh !important;
+                }
+            }
+
+            @media only screen and (min-device-width:376px) and (max-device-width:425px){
+                #myVideo {
+                    width: 87.2vw !important;
+                    height: 30.092vh !important;
+                }
+            }
+
+            @media only screen and (min-device-width:426px) and (max-device-width:768px){
+                #myVideo {
+                    width: 87.2vw !important;
+                    height: 30.092vh !important;
+                }
+            }
+
+            @media only screen and (min-device-width:769px) and (max-device-width:1024px){
+                #myVideo {
+                    width: 65vw !important;
+                    height: 37vh !important;
+                }
+            }
+
+            #myVideo {
+                margin-top: 1.44546vh;
+                margin-bottom: 0;
+                position: relative;
+                object-fit: cover;
+                border-radius: 5%;
+                width: 55vw;
+                height: 37vh;
+            }
+            
+            #question {
+                margin-top: 0.6570vh;
+                /* font-family: 'Manrope'; */
+                font-style: normal;
+                font-weight: 700;
+                font-size: 3.1537vh;
+                line-height: 4.3364vh;
+                color: #F9F9FF;
+                margin-bottom: 0;
+            }
+            video,
+            canvas {
+                transform: scale(1);
+                -webkit-transform: scale(1);
+
+                /*For Firefox (& IE) */
+                /*for Chrome & Opera (& Safari) */
+            }
+
+            #capture_button {
+                margin-top: 2.891vh;
+                margin-bottom: 0;
+                background: url('../static/img/capture_button.png');
+                width: 125px;
+                height: 122px;
+            }
+            #capture_button:hover {
+                opacity: 0.6;
+            }
+
+            #return_office_button {
+                margin-top: 4.99342vh;
+                margin-bottom: 0;
+                background: url('../static/img/return_office_button.jpg');
+                background-position: center;
+                background-size: contain;
+                width: 51px;
+                height: 51px;
+                border-radius: 18%;
+            }
+
+            #header_title {
+                margin-top: 10.9vh;
+                /* font-family: 'Manrope'; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 1.84vh;
+                line-height: 2.4967vh;
+                color: #F9F9FF;
+                margin-bottom: 0;
+            }
+
+            #description {
+                margin-top: 4.4678vh;
+                margin-bottom: 0;
+                /* font-family: 'Manrope'; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 1.971vh;
+                line-height: 2.628vh;
+                color: #F9F9FF;
+            }
+
+            #modal_success_vector {
+                width: 250px !important;
+                height: 296px !important;
+                border-radius: 12% !important;
+            }
+
+            .modal-content {
+                margin: auto;
+                align-items: center;
+                text-align: center;
+                width: 327px;
+                height: 296px;
+                border-radius: 8% !important;
+            }
+
+            .check-icon {
+                background: rgba(86, 125, 244, 0.1);
+                border-radius: 50%;
+                width: 120px;
+                height: 120px;
+                margin-top: 40px;
+                margin-bottom: 0px;
+            }
+            .check-icon1 {
+                background: #FF0303;
+                border-radius: 50%;
+                width: 120px;
+                height: 120px;
+                margin-top: 40px;
+                margin-bottom: 0px;
+            }
+            .modal-description {
+                margin-top: 14px;
+                margin-bottom: 0px;
+                /* font-family: 'Manrope'; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 15px;
+                line-height: 20px;
+                text-align: center;
+            }
+
+            .modal-button {
+                margin-top: 15px;
+                margin-bottom: 0px;
+                width: 265px;
+                height: 50px;
+                border-radius: 10px;
+                /* font-family: 'Manrope'; */
+                font-style: normal;
+                font-weight: 600;
+                font-size: 20px;
+                line-height: 24px;
+                /* identical to box height, or 120% */
+            }
+        </style>
+    </head>
+
+    <body style="background-color: rgba(34, 33, 91, 0.55);">
+        <div id="input">
+            <div id="camera_input">
+                <p id = "header_title">Presenta en el recuadro tu identificación oficial</p>
+                <p id = 'question'></p>
+                <video 
+                    autoPlay = "true"
+                    playsInline = "true"
+                    muted = "true"
+                    ref = "videoRef"
+                    id = "myVideo" >
+                </video>
+                <p id = "description">Da clic en el siguiente icono para escanear</p>
+            </div>
+            <div id="capture_button" class="btn"></div>
+            <a id = "return_office_button" href = "https://www.fiscoclic.mx"></a>
+        </div>
+        <!-- Sucess_Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="check-icon">
+                        <img style = "margin-top: 43px; width: 53.33px; height: 36.67px;"src = "../static/img/Vector.png"/>
+                    </div>
+                    <p id = "modal_descrip" class = "modal-description"></p>
+                    <button id = "success_modal_button" type="button" class="btn btn-primary modal-button" data-bs-dismiss="modal">Siguiente</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fail_modal -->
+        <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="check-icon1">
+                        <img style = "margin-top:32px;width: 53px; height: 58px;"src = "../static/img/x.png"/>
+                    </div>
+                    <p class = "modal-description">Capture su Id_Card correcta</p>
+                    <button id = "fail_modal_button" type="button" class="btn btn-primary modal-button" data-bs-dismiss="modal">Siguiente</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let i = 0, flg = 0;
+            let v = document.getElementById("myVideo");
+            let b = document.getElementById("capture_button");
+            let imageCanvas = document.createElement('canvas');
+            let imageCtx = imageCanvas.getContext("2d");
+
+            //Add file blob to a form and post
+            function postFile(file) {
+
+                let direc;
+                if(i == 0)direc = "front";
+                if(i == 1)direc = "back";
+                i += 1;
+                let formdata = new FormData();
+                formdata.append("direction", direc)
+                formdata.append("image", file);
+
+                let xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:8080/id_verification', true);
+                // xhr.open('POST', 'https://biometric.fiscoclic.mx/id_verification', true);
+                xhr.onload = function () {
+                    if (this.status === 200) {
+                        var data = JSON.parse(this.responseText);
+                        if(direc == 'front' && data['success'] == false){
+                            i = 0;
+                            showmodal("fail", 0);
+                        }
+                        else if(direc == 'front' && data['success'] == true){
+                            if(data['face'] == true){
+                                flg = 1;
+                                showmodal("pass", 0);
+                            }
+                            else{
+                                showmodal('fail', 1);   
+                            }
+                        }
+                        else if(flg == 1 && direc == 'back'){
+                            showmodal("pass", 1)
+                        }
+                    }
+                    else {
+                        console.error(xhr);
+                    }
+                };
+                xhr.send(formdata);
+            }
+
+            function showmodal(result, num){
+                if(result == 'pass'){
+                    if(!num)document.getElementById('modal_descrip').innerHTML = "Gracias ahora te pediremos<br>escanear de la parte de atrás";
+                    else document.getElementById('modal_descrip').innerHTML = "Listo! Ahora validaremos tu identidad<br>y que seas una persona";
+                    document.getElementById('exampleModal').classList.add("show");
+                    document.getElementById('exampleModal').style.display = "block";
+                    document.getElementById('exampleModal').style.background = "#5A5977";
+                    bms = document.getElementById('success_modal_button');
+                    bms.onclick = () => {
+                        document.getElementById('exampleModal').classList.remove("show");
+                        document.getElementById('exampleModal').style.display = "none";
+                        if(!num){
+                            document.getElementById('question').innerHTML = "DE ATRÁS";
+                            b.onclick = () => {
+                                sendImagefromCanvas();
+                            };
+                        }
+                        else{
+                            window.location.href = "{{ url_for('signature')}}"
+                        }  
+                    }
+                }
+                else{
+                    document.getElementById('exampleModal1').classList.add("show");
+                    document.getElementById('exampleModal1').style.display = "block";
+                    document.getElementById('exampleModal1').style.background = "#5A5977";
+                    bms = document.getElementById('fail_modal_button');
+                    bms.onclick = () => {
+                        document.getElementById('exampleModal1').classList.remove("show");
+                        document.getElementById('exampleModal1').style.display = "none";
+                        // window.location.href = "{{ url_for('id_card')}}";
+                    }
+                }
+            }
+
+            //Get the image from the canvas
+            function sendImagefromCanvas() {
+
+                //Make sure the canvas is set to the current video size
+                imageCanvas.width = v.videoWidth;
+                imageCanvas.height = v.videoHeight;
+                imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight);
+
+                //Convert the canvas to blob and post the file
+                imageCanvas.toBlob(postFile, 'image/jpeg');
+            }
+
+            document.getElementById('question').innerHTML = "DE FRENTE";
+            b.onclick = () => {
+                flg = 0;
+                sendImagefromCanvas();
+            };
+            navigator.mediaDevices.enumerateDevices()
+                .then(function (devices){
+                    var cameras = devices.filter(function (device){
+                        return device.kind === 'videoinput';
+                    })
+
+                    var deviceId = null;
+
+                    cameras.forEach(function (camera){
+                        console.log(camera);
+                        if(camera.label.toLowerCase().search('back') > -1){
+                            deviceId = camera.deviceId;
+                        }
+                    })
+
+                    console.log(deviceId)
+
+                    if(!deviceId && cameras.length){
+                        deviceId = cameras[cameras.length - 1].deviceId;
+                    }
+
+                    if(!deviceId){
+                        throw 'no video input'
+                    }
+                    let constraints = {
+                        audio: false,
+                        video: {
+                            deviceId: {
+                                exact: deviceId
+                            },
+                            facingMode: 'environment',
+                            focusMode: 'single-shot'
+                        }
+                    }
+                    
+                    const videoElm = document.querySelector('#myvideo');    
+                    navigator.mediaDevices.getUserMedia(constraints)
+                        .then((stream) => {
+                            videoElm.srcObject = stream;
+                            videoElm.play();
+                        })
+                        .catch((err) => {
+                            console.error(`An error occurred: ${err}`);
+                        });
+                })
+        </script>
+    </body>
+</html>

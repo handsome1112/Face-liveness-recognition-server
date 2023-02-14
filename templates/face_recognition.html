@@ -1,0 +1,397 @@
+<html>
+    <head>
+        <!-- Favicon-->
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+        <title>Faceit :: Face recognition</title>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style type="text/css">
+            #input {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #camera_input {
+                position: relative;
+                margin: 0%;
+                float: center;
+                padding: 0%;
+                width: 100%;
+                text-align: center;
+            
+            }
+
+            #myVideo {
+                margin-top: 2.89vh;
+                margin-bottom: 0;
+                position: relative;
+                border-radius: 50%;
+                object-fit: cover;
+                width: 40.071vh;
+                height: 40.071vh;
+            }
+
+            #description {
+                margin-top: 3.67936vh;
+                /* font-family: "Manrope"; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 1.97vh;
+                line-height: 2.628vh;
+                color: #F9F9FF;
+                margin-bottom: 0;
+            }
+
+            video,
+            canvas {
+                transform: scale(-1, 1);
+                /*For Firefox (& IE) */
+                -webkit-transform: scale(-1, 1);
+                /*for Chrome & Opera (& Safari) */
+            }
+
+            #capture_button {
+                margin-top: 3.67936vh;
+                margin-bottom: 0;
+                background: url('../static/img/face.png');
+                background-size: cover;
+                background-repeat: no-repeat;
+                width: 125px;
+                height: 122px;
+            }
+            #capture_button:hover {
+                opacity: 0.6;
+            }
+            .capture_button_des {
+                margin-top: 1.84vh;
+                margin-bottom: 0;
+                /* font-family: "Manrope"; */
+                font-style: normal;
+                font-weight: 800;
+                font-size: 20px;
+                line-height: 24px;
+                color: #FFFCF9;
+            }
+            #description1 {
+                margin-top: 3.4166vh;
+                /* font-family: "Manrope"; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 1.97vh;
+                line-height: 2.628vh;
+                color: #F9F9FF;
+                margin-bottom: 0;
+            }
+            #question {
+                margin-top: 7.49vh;
+                margin-bottom: 0;
+                /* font-family: "Manrope"; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 1.97vh;
+                line-height: 2.628vh;
+                text-align: center;
+                color:#F9F9FF;
+                display: none;
+            }
+            #question_description {
+                margin-top: 1.5768vh;
+                margin-bottom: 0;
+                /* font-family: "Manrope"; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 1.97vh;
+                line-height: 2.628vh;
+                text-align: center;
+                color:#F9F9FF;
+                display: none;
+            }
+            #waiting {
+                margin-top: 3.4166vh;
+                margin-bottom: 0;
+                width: 297px;
+                height: 63px;
+                display: none;
+            }
+
+            .modal-content {
+                margin: auto;
+                /* margin-bottom: 0; */
+                align-items: center;
+                /* justify-content: center; */
+                text-align: center;
+                width: 327px;
+                height: 388px;
+                border-radius: 20px !important;
+            }
+
+            .check-icon {
+                margin-top: 29px;
+                background: rgba(86, 125, 244, 0.1);
+                border-radius: 50%;
+                width: 69px;
+                height: 69px;
+            }
+            
+            .check-icon1 {
+                background: #FF0303;
+                border-radius: 50%;
+                width: 120px;
+                height: 120px;
+                margin-top: 85px;
+                margin-bottom: 0px;
+            }
+            #modal_inc {
+                margin-top: 29px;
+                margin-bottom: 0px;
+                /* font-family: "Manrope"; */
+                font-weight: 400;
+                font-style: normal;
+                font-size: 24px;
+                line-height: 33px;
+                color:#567DF4;
+            }
+            .modal-description {
+                margin-top: 15px;
+                margin-bottom: 0;
+                /* font-family: 'Manrope'; */
+                font-style: normal;
+                font-weight: 500;
+                font-size: 20px;
+                line-height: 27px;
+                text-align: center;
+            }
+
+            .modal-description1 {
+                margin-top: 40px;
+                margin-bottom: 0px;
+                font-family: 'Manrope';
+                font-style: normal;
+                font-weight: 500;
+                font-size: 15px;
+                line-height: 20px;
+                text-align: center;
+            }
+            .modal-button {
+                width: 265px;
+                height: 50px;
+                border-radius: 10px;
+                /* font-family: 'Manrope'; */
+                font-style: normal;
+                font-weight: 600;
+                font-size: 20px;
+                line-height: 24px;
+                margin-top: 14px;
+                /* identical to box height, or 120% */
+            }
+        </style>
+    </head>
+
+    <body style="background-color: rgba(34, 33, 91, 0.55);">
+        <div id="input">
+            <div id="camera_input">
+                <p id = 'description'>Sigue las instrucciones para la<br/>
+                    validación biométrica</p>
+                <p id = "question"></p>
+                <p id = "question_description"></p>
+                <video id="myVideo" autoplay></video>
+            </div>
+            <div id = "capture" style = "text-align: center;">
+                <p id = "description1">
+                    Centra tu cara en medio del círculo y da<br/>
+                    clic en el siguiente ícono cuando estes listo
+                </p>
+                <div id="capture_button" class="btn"></div>
+                <p class = "capture_button_des">INICIAR</p>
+            </div>
+            <img id = "waiting" src = "../static/img/waiting.png" />
+        </div>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <img style = "margin-top:4px; width: 169px; height: 143px;"src = "../static/img/crea-grupos.png"/>
+                    <p id = "modal_inc"></p>
+                    <p id = "modal_descrip" class = "modal-description"></p>
+                    <div id = "success_modal_button" class="btn check-icon">
+                        <img style = "margin-top:15px; width: 30.67px; height: 21.08px;"src = "../static/img/Vector.png"/>
+                    </div>
+                    <!-- <button id = "success_modal_button" type="button" class="btn btn-primary modal-button" data-bs-dismiss="modal">Entendido!</button> -->
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="check-icon1">
+                        <img style = "margin-top:31px; width: 53.33px; height: 60px;"src = "../static/img/x.png"/>
+                    </div>
+                    <p id = "modal_descrip1" class = "modal-description1"></p>
+                    <button id = "fail_modal_button" type="button" class="btn btn-primary modal-button" data-bs-dismiss="modal">Siguiente</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let v = document.getElementById("myVideo");
+            let b = document.getElementById("capture_button");
+            
+            let question = "Smile";
+            let imageCanvas = document.createElement('canvas');
+            let imageCtx = imageCanvas.getContext("2d");
+
+            function postFile(file) {
+                let formdata = new FormData();
+                formdata.append("question", question);
+                formdata.append("image", file);
+
+                let xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:8080/recognition', true);
+                // xhr.open('POST', 'https://biometric.fiscoclic.mx/recognition', true);
+                xhr.onload = function () {
+                    if (this.status === 200) {
+                        var data = JSON.parse(this.responseText);
+                        if(data['final'] == true){
+                            question = ""
+                            if(data['name'] != 'Unknown'){
+                                let nameee = 'Hola ' + data['name'] + '!';
+                                document.getElementById('modal_inc').innerHTML = nameee;
+                                document.getElementById('modal_descrip').innerHTML = "Gracias por regresar a FiscoClic";
+                                document.getElementById('exampleModal').classList.add("show");
+                                document.getElementById('exampleModal').style.display = "block";
+                                document.getElementById('exampleModal').style.background = "#1A68FD";
+                                bms = document.getElementById('success_modal_button');
+                                bms.onclick = () => {
+                                    document.getElementById('exampleModal').classList.remove("show");
+                                    document.getElementById('exampleModal').style.display = "none";
+                                    window.location.href = "{{ url_for('dashboard')}}";                                    
+                                }
+                            }
+                            else if(data['not_find_face'] == true)takeawhile("not_find_face")
+                            else takeawhile("fail_face");
+                        }
+                        else if(data['is_cal'] == true){
+                            console.log("-----------is_cal-------------")
+                            if(data['success'] == true)send_for_id();
+                            else takeawhile("fail_spoofy");
+                        }
+                        else{
+                            console.log("--------------")
+                        }
+                    }
+                    else {
+                        console.error(xhr);
+                    }
+                };
+                xhr.send(formdata);
+            }
+
+            function send_for_id(){
+                question = "final_img"
+                document.getElementById('waiting').style.display = "none";
+                document.getElementById('question').innerHTML = "Mira hacia adelante";
+                document.getElementById('question_description').innerHTML = "Espere 1 segundo y deténgase";
+                let intervalID
+                if(!intervalID)intervalID = setInterval(() => {
+                    sendImagefromCanvas();
+                    document.getElementById('waiting').style.display = "block";
+                    clearInterval(intervalID)
+                    intervalID = null;
+                }, 1000)
+            }
+
+            function takeawhile(message){
+                if(message == "fail_spoofy")document.getElementById('modal_descrip1').innerHTML = "No se puede detectar una persona.<br>Intenta de nuevo";
+                else if(message == "fail_face")document.getElementById('modal_descrip1').innerHTML = "no te conozco";
+                else document.getElementById('modal_descrip1').innerHTML = "No puedo reconocer tu cara<br>Centra tu cara en el<br>medio del círculo e inténtalo de nuevo";
+                document.getElementById('exampleModal1').classList.add("show");
+                document.getElementById('exampleModal1').style.display = "block";
+                document.getElementById('exampleModal1').style.background = "#5A5977";
+                bms = document.getElementById('fail_modal_button');
+                bms.onclick = () => {
+                    document.getElementById('exampleModal1').classList.remove("show");
+                    document.getElementById('exampleModal1').style.display = "none";
+                    window.location.href = "{{ url_for('f_recognition')}}";
+                }
+            }
+
+            //Get the image from the canvas
+            function sendImagefromCanvas() {
+                //Make sure the canvas is set to the current video size
+                imageCanvas.width = v.videoWidth;
+                imageCanvas.height = v.videoHeight;
+                imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight);
+                imageCanvas.toBlob(postFile, 'image/jpeg');
+            }
+            const questions = [
+                "Smile",
+            ];
+
+            function send(){
+                let j = 0, intervalID;
+                if(!intervalID)intervalID = setInterval(() => {
+                    j ++;
+                    sendImagefromCanvas()
+                    console.log(j)
+                    if(j == 25){
+                        document.getElementById('waiting').style.display = "block";
+                        clearInterval(intervalID)
+                        intervalID = null;
+                    }
+                }, 80)
+            }
+
+            function sendImage(){
+                const random = Math.floor(Math.random() * questions.length);
+                question = questions[random];
+                let des = "";
+                document.getElementById('waiting').style.display = "none";
+                des = "Sonrie...";
+                document.getElementById('question').innerHTML = des;
+                document.getElementById('question').style.display = "block";
+                document.getElementById('question_description').innerHTML = "Espera y despues deja de sonreir";
+                document.getElementById('question_description').style.display = "block";
+                let intervalID
+                if(!intervalID)intervalID = setInterval(() => {
+                    send();
+                    clearInterval(intervalID)
+                    intervalID = null;
+                }, 1000)
+            }
+
+            b.onclick = () => {
+                console.log('clicked button');
+                document.getElementById('description').style.display = "none";
+                document.getElementById('capture').style.display = "none";
+                sendImage();
+            }
+
+            let streaming = false;
+            window.onload = function () {
+                video = document.getElementById("myVideo");
+                navigator.mediaDevices
+                    .getUserMedia({ 
+                        video: {
+                            facingMode: 'user'
+                        },
+                        audio: false }
+                    )
+                    .then((stream) => {
+                        video.srcObject = stream;
+                        video.play();
+                    })
+                    .catch((err) => {
+                        console.error(`An error occurred: ${err}`);
+                    });
+            };
+
+        </script>
+    </body>
+</html>

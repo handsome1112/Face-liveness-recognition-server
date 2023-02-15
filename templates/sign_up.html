@@ -1,114 +1,12 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Faceit :: Register</title>
+        <title>Inscribirse | FiscoClic Validación de identidad de personas</title>
         <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="{{ url_for('static',filename='img/favicon.jpg') }}" type="image/x-icon" />
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/sign_up.css') }}">
     </head>
-    <style type="text/css">
-      #input {
-          display: flex;
-          width: 100%;
-          height: 100%;
-          flex-direction: column;
-          align-items: center;
-          font-family: "Open Sans";
-      }
-      #signup_title {
-        margin-top: 10.25vh;
-        margin-bottom: 0;
-        font-style: normal;
-        font-weight: 700;
-        font-size: 2.63vh;
-        line-height: 3.548vh;
-        color:#F9F9FF;
-        text-align: center;
-      }
-      #return_office_button {
-        margin-top: 4.4678vh;
-        margin-bottom: 0;
-        background: url('../static/img/return_office_button.jpg');
-        background-position: center;
-        background-size: contain;
-        width: 60px;
-        height: 60px;
-        border-radius: 18%;
-      }
-      #signup_description {
-        margin-top: 7.49vh;
-        margin-bottom: 0;
-        font-style: normal;
-        font-weight: 500;
-        font-size: 2.1vh;
-        line-height: 2.89vh;
-        align-items: center;
-        color: #F9F9FF;
-      }
-      .sign {
-        width: 327px;
-        margin-top: 16px;
-      }
-      .title {
-        position:relative;
-        background: #fff;
-        width: 142px;
-        margin-bottom: -9px;
-        border-radius: 9px;
-        margin-left: 10px;
-        font-style: normal;
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 19px;
-        text-align: center;
-      }
-      .title1 {
-        width: 137px;
-      }
-      .title2 {
-        width: 94px;
-      }
-      input:-webkit-autofill,
-      input:-webkit-autofill:hover,
-      input:-webkit-autofill:focus,
-      input:-webkit-autofill:active {
-        transition: background-color 5000s ease-in-out 0s;
-      }
-
-      input {
-        width: 100%;
-        border-radius: 10px;
-        height: 54px;
-        border: 0;
-        background: #fff;
-      }
-      input:focus-visible {
-        border: 0 !important;
-        outline: 0 !important;
-      }
-      .btn {
-        margin-top: 31px;
-        font-style: normal;
-        font-weight: 600;
-        font-size: 20px;
-        line-height: 24px;
-        align-items: center;
-        text-align: center;
-        color: #78726D;
-        height: 50px;
-        border-radius: 10px;
-      }
-      .msg {
-        font-style: normal;
-        font-weight: 500;
-        font-size: 1.8vh;
-        line-height: 2.4vh;
-        align-items: center;
-        color: #F9F9FF !important;
-        margin-top: 0;
-        text-align: center;
-        margin-bottom: 10px;
-      }
-    </style>
     <body style="background-color: #1A68FD;">
       <div id = "input">
         <p id = "signup_title">Onboarding FiscoClic</p>

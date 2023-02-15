@@ -12,6 +12,7 @@ from matplotlib import pyplot as plt
 from sqlalchemy.orm import sessionmaker
 import face_recognition
 import imutils
+import shutil
 
 #-------Connect to Database------#
 engine = create_engine('sqlite:///login_db.db', echo=True)
@@ -391,6 +392,15 @@ def recognition():
                     data['success'] = True
     return flask.jsonify(data)
 
+@application.route('/delete_all')
+def delete_all():
+    Session = sessionmaker(bind=engine)
+    s = Session()
+    s.query(User).delete()
+    s.commit()
+    if os.path.isdir('dataset'):
+        shutil.rmtree('dataset')
+    return index()
 if __name__ == "__main__":
 
     print("** Starting Flask server.........Please wait until the server starts ")

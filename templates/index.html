@@ -2,61 +2,12 @@
 	<html>
         <head>
             <meta charset="UTF-8">
-            <title>Faceit</title>
+            <title>FiscoClic Validación de identidad de personas</title>
             <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
             <meta name="viewport" content="width=device-width, initial-scale=1">          
+            <link rel="shortcut icon" href="{{ url_for('static',filename='img/favicon.jpg') }}" type="image/x-icon" />
+            <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css') }}">
         </head>
-        <style type="text/css">
-            #input {
-                display: flex;
-                width: 100%;
-                height: 100%;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                font-family: "Open Sans";
-            }
-            .index_title {
-                margin-top: 24.7vh;
-                margin-bottom: 0;
-                font-style: normal;
-                font-weight: 500;
-                font-size: 4.27vw;
-                line-height: 5.87vw;
-                color: #F9F9FF;
-            }
-            .index_main {
-                margin-top: 2.5vh;
-                margin-bottom: 0;
-                width: 89.067vw;
-                height: 80.533vw;
-                background-color: #fff;
-                border-radius: 20px;
-            }
-            #return_office_button {
-                margin-top: 4vw;
-                margin-bottom: 0;
-                background: url('../static/img/isotipo.png');
-                background-position: center;
-                background-size: contain;
-                width: 30.4vw;
-                height: 30vw;
-            }
-            .button {
-                width: 76.53vw;
-                height: 13.33vw;
-                background: #1A68FD;
-                border-radius: 10px;
-                font-style: normal;
-                font-weight: 600;
-                font-size: 5.33vw;
-                line-height: 6.4vw;
-                align-items: center;
-                text-align: center;
-                color: #FFFCF9;
-                border: 0;
-            }
-        </style>
         <body style="background-color: #1A68FD;">
             <div id = "input">
                 <p class="index_title">Bienvenido a FiscoClic!</p>
@@ -64,12 +15,12 @@
                     <div style = "display: flex; justify-content: center;">
                         <a id = "return_office_button" href = "https://www.fiscoclic.mx"></a>
                     </div>
-                    <form style = "margin-top: 7.73vw;" action="{{ url_for('sign_up') }}">
+                    <form style = "margin-top: 29px;" action="{{ url_for('sign_up') }}">
                         <button class="button" style="vertical-align:middle">
                             <span>Registro por primera vez</span>
                         </button>
                     </form>
-                    <form style = "margin-top: 6.13vw;" action="{{ url_for('f_recognition') }}" >
+                    <form style = "margin-top: 23px;" action="{{ url_for('f_recognition') }}" >
                         <button class="button button-normal" style="vertical-align:middle" type="submit">
                             <span>Autenticación biométrica</span>
                         </button>

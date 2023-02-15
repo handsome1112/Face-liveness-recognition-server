@@ -131,10 +131,12 @@ def findFaces(image):
         return None
 
     for face in faces:
-        x1 = face.left()   - 30
-        y1 = face.top()    - 70
-        x2 = face.right()  + 10
-        y2 = face.bottom() + 30
+        x1 = face.left()
+        y1 = face.top()
+        x2 = face.right()
+        y2 = face.bottom()
+        # print(x1, y1, x2, y2)
+        # print(image.left(), image.top(), image.right(), image.bottom())
         cv2.rectangle(image, (x1, y1), (x2, y2), (255, 255 , 0), 3)
         face_crop = image[y1:y2, x1:x2]
         return face_crop

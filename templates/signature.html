@@ -1,6 +1,7 @@
 <html>
     <head>
         <!-- Favicon-->
+        <script src="/static/js/device-uuid.js"></script>
         <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
         <title>Onboarding | FiscoClic Validación de identidad de personas</title>
         <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -12,20 +13,23 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
 
-    <body style="background-color: rgba(34, 33, 91, 0.55);">
+    <body style="background-color: #1A68FD;">
         <div id="input">
+            <img id = "question_pic" style = "width: 48px; height: 48px; margin-top: 1.44vh; display: none;">
             <div id="camera_input">
                 <p id = 'description'>Sigue las instrucciones para la<br/>
                     validación biométrica</p>
                 <p id = "question"></p>
                 <p id = "question_description"></p>
-                <video id="myVideo" autoplay></video>
+                <video id="myVideo" autoplay
+                playsinline
+                muted></video>
             </div>
             <div id = "capture" style = "text-align: center;">
                 <p id = "description1">
-                    Retira bufanda o sweter y manten el cuello descubierto<br/>
-                    Centra tu cara en medio del círculo y da<br/>
-                    clic en el siguiente ícono cuando estes listo
+                    Centra tu cara en medio del círculo<br/>
+                    Descubre tu cuello y quita gorras / lentes<br/><br/>
+                    Da clic en el siguiente ícono cuando estes listo<br/>
                 </p>
                 <div id="capture_button" class="btn"></div>
                 <p class = "capture_button_des">INICIAR</p>
@@ -86,7 +90,13 @@
         <script>
             let v = document.getElementById("myVideo");
             let b = document.getElementById("capture_button");
-            
+            var uuid = new DeviceUUID().get();
+            var latitude, longitude;
+            navigator.geolocation.getCurrentPosition(function(location) {
+                latitude = location.coords.latitude;
+                longitude = location.coords.longitude;
+            });
+
             let count = 0;
             let question = "Smile";
             let imageCanvas = document.createElement('canvas');
@@ -99,14 +109,18 @@
                 formdata.append("count", count)
 
                 let xhr = new XMLHttpRequest();
-                xhr.open('POST', 'http://localhost:8080/predict', true);
-                // xhr.open('POST', 'https://biometric.fiscoclic.mx/predict', true);
+                // xhr.open('POST', 'http://localhost:8080/predict', true);
+                xhr.open('POST', 'https://biometric.fiscoclic.mx/predict', true);
                 xhr.onload = function () {
                     if (this.status === 200) {
                         var data = JSON.parse(this.responseText);
                         if(data['final'] == true){
                             question = ""
                             if(data['id_ver'] == true){
+                                let front = data['front_pic'];
+                                let employ = data['employ_pic'];
+                                let token = data['token'];
+                                let ide = data['ide'];
                                 document.getElementById('modal_descrip').innerHTML = "Hemos validado tu identidad";
                                 document.getElementById('exampleModal').classList.add("show");
                                 document.getElementById('exampleModal').style.display = "block";
@@ -115,7 +129,31 @@
                                 bms.onclick = () => {
                                     document.getElementById('exampleModal').classList.remove("show");
                                     document.getElementById('exampleModal').style.display = "none";
-                                    window.location.href = "https://www.fiscoclic.mx";
+                                    // window.location.href = "https://www.fiscoclic.mx";
+                                    
+                                    let xhr1 = new XMLHttpRequest();
+                                    let url = "https://www.fiscoclic.mx/Nomina/rh/FCRH_firmadigital/SRV_onboardUser/";
+                                    xhr1.open('POST', url, true);
+                                    xhr1.setRequestHeader("Content-Type", "application/json");
+                                    xhr1.onreadystatechange = function () {
+                                        if (xhr1.readyState === 4 && xhr1.status === 200) {
+                                            data2 = JSON.parse(this.responseText);
+                                            console.log(data2)
+                                        }
+                                        else {
+                                            console.error(xhr);
+                                        }
+                                    };
+                                    var data1 = JSON.stringify({ 
+                                        "base64frontidcardpicture": front, 
+                                        "base64frontemployeepicture": employ, 
+                                        "token": token, 
+                                        "latitude": latitude + '',  
+                                        "longitude": longitude + '', 
+                                        "ide": ide,
+                                        "deviceID": uuid
+                                    });
+                                    xhr1.send(data1);
                                 }
                             }
                             else if(data['not_find_face'] == true)takeawhile(1, "not_find_face")
@@ -153,8 +191,9 @@
                     document.getElementById('stepModal').style.display = "none";
                     question = "final_img"
                     document.getElementById('waiting').style.display = "none";
-                    document.getElementById('question').innerHTML = "Mira de frente y permanece asi";
-                    document.getElementById('question_description').innerHTML = "durante unos segundos";
+                    document.getElementById('question_pic').src = "../static/img/neutral.png";
+                    document.getElementById('question').innerHTML = "MIRA DE FRENTE";
+                    document.getElementById('question_description').innerHTML = "y espera unos segundos en esa posición...";
                     let intervalID
                     if(!intervalID)intervalID = setInterval(() => {
                         sendImagefromCanvas();
@@ -231,27 +270,28 @@
                 const random = Math.floor(Math.random() * questions.length);
                 question = questions[random];
                 let des = "";
+                let des1 = "";
                 document.getElementById('waiting').style.display = "none";
-                if(index_step == 0){
-                    if(question == 'Smile')des = "Muestra una cara  de “SONRIE”";
-                    if(question == 'TurnFaceRight')des = "Gira tu la cara a la DERECHA";
-                    if(question == 'TurnFaceLeft')des = "Gira tu la cara a la IZQUIERDA";    
+                img = document.getElementById('question_pic');
+                des1 = "y espera unos segundos en esa posición"
+                if(question == 'Smile'){
+                    des = "SONRIE";
+                    img.src = "../static/img/smile.png";
                 }
-                else{
-                    if(question == 'Smile')des = "Ahora SONRIE...";
-                    if(question == 'TurnFaceRight')des = "Gira tu la cara a la DERECHA";
-                    if(question == 'TurnFaceLeft')des = "Gira tu la cara a la IZQUIERDA"; 
-                    if(question == 'Surprise')des = "Ahora SORPRESA...";
-                    if(question == 'Angry')des = "Ahora ENOJADO...";    
+                if(question == 'TurnFaceRight'){
+                    des = "GIRA TU CARA A LA DERECHA";
+                    img.src = "../static/img/right.png"
                 }
-                // if(question == 'TurnFaceRight')des = "Gira 45 grados tu la cara a la DERECHA";
-                // if(question == 'TurnFaceLeft')des = "Gira tu cara 45 grados a la IZQUIERDA";
+                if(question == 'TurnFaceLeft'){
+                    des = "GIRA TU CARA A LA IZQUIERDA";    
+                    img.src = "../static/img/left.png"
+                }
 
                 document.getElementById('question').innerHTML = des;
                 document.getElementById('question').style.display = "block";
-                if(!index_step)document.getElementById('question_description').innerHTML = "Mantén tu cara girando por unos segundos";
-                else document.getElementById('question_description').innerHTML = "Mantén tu cara girando por unos segundos";
+                document.getElementById('question_description').innerHTML = des1;
                 document.getElementById('question_description').style.display = "block";
+                img.style.display = "block";
                 let intervalID
                 if(!intervalID)intervalID = setInterval(() => {
                     send();

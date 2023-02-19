@@ -1,6 +1,7 @@
 <html>
     <head>
         <!-- Favicon-->
+        <script src="/static/js/device-uuid.js"></script>
         <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
         <title>Autorizar | FiscoClic Validación de identidad de personas</title>
         <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -12,14 +13,17 @@
         <link rel="shortcut icon" href="{{ url_for('static',filename='img/favicon.jpg') }}" type="image/x-icon" />
     </head>
 
-    <body style="background-color: rgba(34, 33, 91, 0.55);">
+    <body style="background-color: #1A68FD;">
         <div id="input">
+            <img id = "question_pic" style = "width: 48px; height: 48px; margin-top: 1.44vh; display: none;">
             <div id="camera_input">
                 <p id = 'description'>Sigue las instrucciones para la<br/>
                     validación biométrica</p>
                 <p id = "question"></p>
                 <p id = "question_description"></p>
-                <video id="myVideo" autoplay></video>
+                <video id="myVideo" autoplay
+                playsinline
+                muted></video>
             </div>
             <div id = "capture" style = "text-align: center;">
                 <p id = "description1">
@@ -61,7 +65,13 @@
         <script>
             let v = document.getElementById("myVideo");
             let b = document.getElementById("capture_button");
-            
+            var uuid = new DeviceUUID().get();
+            var latitude, longitude;
+            navigator.geolocation.getCurrentPosition(function(location) {
+                latitude = location.coords.latitude;
+                longitude = location.coords.longitude;
+            });
+
             let question = "Smile";
             let imageCanvas = document.createElement('canvas');
             let imageCtx = imageCanvas.getContext("2d");
@@ -72,14 +82,15 @@
                 formdata.append("image", file);
 
                 let xhr = new XMLHttpRequest();
-                xhr.open('POST', 'http://localhost:8080/recognition', true);
-                // xhr.open('POST', 'https://biometric.fiscoclic.mx/recognition', true);
+                // xhr.open('POST', 'http://localhost:8080/recognition', true);
+                xhr.open('POST', 'https://biometric.fiscoclic.mx/recognition', true);
                 xhr.onload = function () {
                     if (this.status === 200) {
                         var data = JSON.parse(this.responseText);
                         if(data['final'] == true){
                             question = ""
                             if(data['name'] != 'Unknown'){
+                                console.log(data["token"])
                                 let nameee = 'Hola ' + data['name'] + '!';
                                 document.getElementById('modal_inc').innerHTML = nameee;
                                 document.getElementById('modal_descrip').innerHTML = "Gracias por regresar a FiscoClic";
@@ -115,8 +126,9 @@
             function send_for_id(){
                 question = "final_img"
                 document.getElementById('waiting').style.display = "none";
-                document.getElementById('question').innerHTML = "Mira hacia adelante";
-                document.getElementById('question_description').innerHTML = "Espere 1 segundo y deténgase";
+                document.getElementById('question').innerHTML = "MIRA DE FRENTE";
+                document.getElementById('question_description').innerHTML = "y espera unos segundos en esa posición...";
+                document.getElementById('question_pic').src = "../static/img/neutral.png";
                 let intervalID
                 if(!intervalID)intervalID = setInterval(() => {
                     sendImagefromCanvas();
@@ -172,11 +184,14 @@
                 question = questions[random];
                 let des = "";
                 document.getElementById('waiting').style.display = "none";
-                des = "Sonrie...";
+                des = "SONRIE";
                 document.getElementById('question').innerHTML = des;
                 document.getElementById('question').style.display = "block";
-                document.getElementById('question_description').innerHTML = "Espera y despues deja de sonreir";
+                document.getElementById('question_description').innerHTML = "y espera unos segundos en esa posición";
                 document.getElementById('question_description').style.display = "block";
+                img = document.getElementById('question_pic');
+                img.src = "../static/img/smile.png";
+                img.style.display = "block";
                 let intervalID
                 if(!intervalID)intervalID = setInterval(() => {
                     send();

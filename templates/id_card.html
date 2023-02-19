@@ -12,7 +12,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
 
-    <body style="background-color: rgba(34, 33, 91, 0.55);">
+    <body style="background-color: #1A68FD;">
         <div id="input">
             <div id="camera_input">
                 <p id = "header_title">Presenta en el recuadro tu identificación oficial</p>
@@ -174,29 +174,9 @@
                         console.error(`An error occurred: ${err}`);
                     });
                 };
-            //     var mediaStream = null;
-            //     var constraints = { 
-            //         audio: false, 
-            //         video: { 
-            //             facingMode: "environment"
-            //         } 
-            //     }; 
-            //     async function getMediaStream(constraints) {
-            //         try {
-            //             mediaStream =  await navigator.mediaDevices.getUserMedia(constraints);
-            //             const video = document.querySelector('#myvideo');  
-            //             video.srcObject = mediaStream;
-            //             video.onloadedmetadata = (event) => {
-            //                 video.play();
-            //             };
-            //         } catch (err)  {    
-            //             console.error(err.message);   
-            //         }
-            //     };
-            //     getMediaStream(constraints);
             }
             else {
-                console.log("this is not iphone")
+                console.log("this is not iphone/iPad")
                 navigator.mediaDevices.enumerateDevices()
                 .then(function (devices){
                     var cameras = devices.filter(function (device){

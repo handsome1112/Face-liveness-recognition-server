@@ -7,12 +7,14 @@ import numpy as np
 from PIL import Image
 from tabledef import *
 from datetime import timedelta
-from flask import request, session
+from flask import request, session, redirect, url_for
 from matplotlib import pyplot as plt
 from sqlalchemy.orm import sessionmaker
 import face_recognition
 import imutils
 import shutil
+import base64
+import json
 
 #-------Connect to Database------#
 engine = create_engine('sqlite:///login_db.db', echo=True)
@@ -114,12 +116,12 @@ def encode_face(img, name, email, detection_method):
     data = {'encodings': knownEncodings, 'names': knownNames}    
     Session = sessionmaker(bind=engine)
     s = Session()
-    query = s.query(User).filter(User.email.in_([email]))
-    result = query.first()
-    result.encoded_face = data
-    s.add(result)
+    user = User(name, email, data)
+    s.add(user)
     s.commit()
-
+    if os.path.isdir('dataset/' + name):
+        shutil.rmtree('dataset/' + name)
+    
 #------Timing out the login session------#
 
 @application.before_request
@@ -130,69 +132,12 @@ def make_session_permanent():
 #------Index------#
 @application.route('/')
 def index():
-    # if not session.get('logged_in'):
     return flask.render_template("index.html")
-
-#------Dashboard-------#
-@application.route('/dashboard')
-def dashboard():
-    if not session.get('final_login'):
-        return index()
-    return flask.render_template('dashboard.html')
 
 #------Sign Up-------#
 @application.route('/sign_up')
 def sign_up():
     return flask.render_template("sign_up.html")
-
-@application.route('/signup_user', methods=['GET', "POST"])
-def signup_user():
-   
-    msg = ''
-    engine = create_engine('sqlite:///login_db.db', echo=True)
-    if flask.request.method == 'POST' and 'username' in flask.request.form and 'password' in flask.request.form and 'email' in flask.request.form :
-   
-        username = str(request.form['username'])
-        password = str(request.form['password'])
-        email = str(request.form['email'])
-
-        Session = sessionmaker(bind=engine)
-        s = Session()
-        query = s.query(User).filter(User.email.in_([email]))
-        result = query.first()
-        pass_validate = password_check(password)
-
-        if result:
-            msg = 'la cuenta ya existe!'
-        elif not re.match(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', email):
-            msg = 'Dirección de correo electrónico no válida!'
-        elif not re.match(r'[A-Za-z0-9]+', username):
-            msg = 'El nombre de usuario debe contener solo caracteres y números!'
-        elif pass_validate != 'success':
-            msg = pass_validate
-        elif not username or not password or not email:
-            msg = 'por favor rellena el formulario!'
-        else :
-            user = User(username, email, password, None)
-            s.add(user)
-            s.commit()
-            session['logged_in'] = True
-            session['username'] = username
-            session['useremail'] = email
-            msg = 'Se ha registrado exitosamente!'
-            return id_card()
-    
-    return flask.render_template('sign_up.html', msg = msg)
-   
-#------Sign Out-------#
-@application.route("/logout", methods=['POST'])
-def logout():
-    # logging out the user
-    session['logged_in'] = False
-    session['id_capture'] = False
-    session['username'] = ''
-    session['useremail'] = ''
-    return index()
 
 #------IDCard Verification-------#
 @application.route('/id_card')
@@ -270,7 +215,11 @@ def predict():
             'is_cal': False,
             'is_start': False,
             'final': False,
-            'not_find_face':False}
+            'not_find_face':False,
+            'token': "",
+            'front_pic': "",
+            'employ_pic': "",
+            'ide': 0}
 
     if flask.request.method == "POST":
        
@@ -297,12 +246,19 @@ def predict():
                     flg = 1
                     if not img_find_face is None:
                         plt.imsave("dataset/" + name + "/liveness_face.png", img)
+                        with open("dataset/" + name + "/front.png", "rb") as img_file:
+                            my_string = base64.b64encode(img_file.read()).decode("utf-8")
+                        with open("dataset/" + name + "/liveness_face.png", "rb") as img_file:
+                            my_string1 = base64.b64encode(img_file.read()).decode("utf-8")
                         result = face_recog(name)
                         encode_face(img, name, email, 'hog')
                         print("face_recognition", result)
                         if(result == "pass"):
                             data['id_ver'] = True
-                            session['final_login'] = True
+                            data['ide'] = session['useride']
+                            data['front_pic'] = my_string
+                            data['employ_pic'] = my_string1
+                            data['token'] = session['usertoken']
                         else :
                             session['id_capture'] = False
                     else: data['not_find_face'] = True
@@ -329,6 +285,8 @@ def predict():
 
 @application.route('/f_recognition')
 def f_recognition():
+    if not session.get('logged_in'):
+        return flask.render_template("sign_up.html")
     return flask.render_template("face_recognition.html")
 
 @application.route('/recognition', methods=["POST"])
@@ -338,7 +296,8 @@ def recognition():
             'is_start': False,
             'final': False,
             'name': "Unknown",
-            'not_find_face': False}
+            'not_find_face': False,
+            "token": ""}
 
     if flask.request.method == "POST":
        
@@ -364,13 +323,10 @@ def recognition():
                     if not img_find_face is None:
                         name = recognize(img)
                         if name != 'Unknown':
-                            session['logged_in'] = True
-                            session['final_login'] = True
-                            session['username'] = name
+                            data['token'] = session['usertoken']
                             data['name'] = name
                         else :
                             session['id_capture'] = False
-                            session['final_login'] = False
                     else: data['not_find_face'] = True
                     return flask.jsonify(data)
             if number_question < 25:
@@ -392,14 +348,41 @@ def recognition():
                     data['success'] = True
     return flask.jsonify(data)
 
+#------------api---------------
+
+@application.route('/redirector', methods=["POST"])
+def redirector():
+    if flask.request.method == "POST":
+        status = str(request.form["status"])
+        ide = int(request.form["ide"])
+        if ide > 0:
+            name = str(request.form["name"])
+            email = str(request.form["email"])
+            token = str(request.form["token"])
+            ide = int(request.form['ide'])
+            session['logged_in'] = True
+            session['username'] = name
+            session['useremail'] = email
+            session['usertoken'] = token
+            session['useride'] = ide
+            if status == "OK":
+                return f_recognition()
+            else: return id_card()
+    return flask.jsonify("error")
+   
+#-----------delete_all------------
 @application.route('/delete_all')
 def delete_all():
     Session = sessionmaker(bind=engine)
     s = Session()
     s.query(User).delete()
     s.commit()
-    if os.path.isdir('dataset'):
-        shutil.rmtree('dataset')
+    session['logged_in'] = False
+    session['id_capture'] = False
+    session['username'] = ''
+    session['useremail'] = ''
+    session['usertoken'] = ''
+    session['useride'] = 0
     return index()
 if __name__ == "__main__":
 

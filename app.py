@@ -7,14 +7,15 @@ import numpy as np
 from PIL import Image
 from tabledef import *
 from datetime import timedelta
-from flask import request, session, redirect, url_for
+from flask import request, session, jsonify, redirect
 from matplotlib import pyplot as plt
 from sqlalchemy.orm import sessionmaker
 import face_recognition
 import imutils
 import shutil
 import base64
-import json
+from flask_cors import CORS
+import msgspec
 
 #-------Connect to Database------#
 engine = create_engine('sqlite:///login_db.db', echo=True)
@@ -28,6 +29,8 @@ from id_card_recognition.utils import findFaces
 
 application = flask.Flask(__name__)
 application.secret_key = 'web_app_for_face_recognition_and_liveness' # something super secret
+
+CORS(application)
 
 flg = 0
 questionA = ""
@@ -119,8 +122,6 @@ def encode_face(img, name, email, detection_method):
     user = User(name, email, data)
     s.add(user)
     s.commit()
-    if os.path.isdir('dataset/' + name):
-        shutil.rmtree('dataset/' + name)
     
 #------Timing out the login session------#
 
@@ -159,13 +160,13 @@ def id_verification():
             name = session['username']
             img = flask.request.files["image"].read()
             img = np.array(Image.open(io.BytesIO(img)))
-            dirName = "dataset/" + name
+            dirName = "static/dataset/" + name
             if not os.path.exists(dirName):
                 os.makedirs(dirName)
                 print("Directory " , dirName ,  " Created ")
 
             if direction == 'front':
-                plt.imsave("dataset/" + name + "/front.png", img)
+                plt.imsave("static/dataset/" + name + "/front.png", cv2.resize(img, (100, 170)))
                 text, face = sift(img)      
                 print(text)
                 if text == 'Not_ID_Card':
@@ -176,9 +177,9 @@ def id_verification():
                 else:
                     session['id_capture'] = True
                     data['success'] = True
-                    plt.imsave("dataset/" + name + "/crop_face.png", face)
+                    plt.imsave("static/dataset/" + name + "/crop_face.png", face)
             elif direction == 'back':
-                plt.imsave("dataset/" + name + "/back.png", img)
+                plt.imsave("static/dataset/" + name + "/back.png", img)
 
     return flask.jsonify(data)
 
@@ -192,9 +193,9 @@ def signature():
     # return flask.render_template("signature.html")
 
 def face_recog(name):
-    known_image = face_recognition.load_image_file("./dataset/" + name + "/crop_face.png")
+    known_image = face_recognition.load_image_file("static/dataset/" + name + "/crop_face.png")
     known_image_encoding = face_recognition.face_encodings(known_image)[0]
-    unknown_image = face_recognition.load_image_file("./dataset/" + name + "/liveness_face.png")
+    unknown_image = face_recognition.load_image_file("static/dataset/" + name + "/liveness_face.png")
     face_encodings = face_recognition.face_encodings(unknown_image)
     face_distance = face_recognition.face_distance(face_encodings, known_image_encoding)[0]
     print(face_distance)
@@ -217,8 +218,9 @@ def predict():
             'final': False,
             'not_find_face':False,
             'token': "",
-            'front_pic': "",
-            'employ_pic': "",
+            'name': "",
+            # 'front_pic': "",
+            # 'employ_pic': "",
             'ide': 0}
 
     if flask.request.method == "POST":
@@ -245,24 +247,23 @@ def predict():
                     data['final'] = True
                     flg = 1
                     if not img_find_face is None:
-                        plt.imsave("dataset/" + name + "/liveness_face.png", img)
-                        with open("dataset/" + name + "/front.png", "rb") as img_file:
-                            my_string = base64.b64encode(img_file.read()).decode("utf-8")
-                        with open("dataset/" + name + "/liveness_face.png", "rb") as img_file:
-                            my_string1 = base64.b64encode(img_file.read()).decode("utf-8")
+                        plt.imsave("static/dataset/" + name + "/liveness_face1.png", cv2.resize(img, (100, 100)))
+                        plt.imsave("static/dataset/" + name + "/liveness_face.png", img)
                         result = face_recog(name)
+                        ide = session['useride']
+                        token = session['usertoken']
                         encode_face(img, name, email, 'hog')
                         print("face_recognition", result)
                         if(result == "pass"):
                             data['id_ver'] = True
-                            data['ide'] = session['useride']
-                            data['front_pic'] = my_string
-                            data['employ_pic'] = my_string1
-                            data['token'] = session['usertoken']
+                            data['ide'] = ide
+                            data['token'] = token
+                            data["name"] = name
                         else :
                             session['id_capture'] = False
                     else: data['not_find_face'] = True
-                    return flask.jsonify(data)
+                    # print("okokokoooo")
+                    return msgspec.json.encode(data)
             elif number_question < 25:
                 flg = 0
                 if number_question == 1:
@@ -355,6 +356,7 @@ def redirector():
     if flask.request.method == "POST":
         status = str(request.form["status"])
         ide = int(request.form["ide"])
+        print(status, ide)
         if ide > 0:
             name = str(request.form["name"])
             email = str(request.form["email"])
@@ -370,6 +372,22 @@ def redirector():
             else: return id_card()
     return flask.jsonify("error")
    
+#----------clear_pic-----------#
+@application.route('/clear_pic')
+def clear_pic():
+    name = session['username']
+    if os.path.isdir('static/dataset/' + name):
+        shutil.rmtree('static/dataset/' + name)
+    session['logged_in'] = False
+    session['id_capture'] = False
+    session['username'] = ''
+    session['useremail'] = ''
+    session['usertoken'] = ''
+    session['useride'] = 0
+    url = "https://www.fiscoclic.mx"
+    return redirect(url)
+
+
 #-----------delete_all------------
 @application.route('/delete_all')
 def delete_all():
@@ -384,6 +402,7 @@ def delete_all():
     session['usertoken'] = ''
     session['useride'] = 0
     return index()
+
 if __name__ == "__main__":
 
     print("** Starting Flask server.........Please wait until the server starts ")

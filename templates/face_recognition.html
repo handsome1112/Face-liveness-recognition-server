@@ -62,6 +62,16 @@
             </div>
         </div>
 
+        <div class="modal fade" id="startModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-content-start">
+                    <div class="check-icon-start">
+                        <img style = "margin-left: 10px; margin-top: 37px; width: 67.75px; height: 68.04px;"src = "../static/img/Group.png"/>
+                    </div>
+                    <p id = "modal_descrip-start" class = "modal-description-start"></p>
+                </div>
+            </div>
+        </div>
         <script>
             let v = document.getElementById("myVideo");
             let b = document.getElementById("capture_button");
@@ -82,8 +92,8 @@
                 formdata.append("image", file);
 
                 let xhr = new XMLHttpRequest();
-                // xhr.open('POST', 'http://localhost:8080/recognition', true);
-                xhr.open('POST', 'https://biometric.fiscoclic.mx/recognition', true);
+                xhr.open('POST', 'http://localhost:8080/recognition', true);
+                // xhr.open('POST', 'https://biometric.fiscoclic.mx/recognition', true);
                 xhr.onload = function () {
                     if (this.status === 200) {
                         var data = JSON.parse(this.responseText);
@@ -101,7 +111,18 @@
                                 bms.onclick = () => {
                                     document.getElementById('exampleModal').classList.remove("show");
                                     document.getElementById('exampleModal').style.display = "none";
-                                    window.location.href = "https://www.fiscoclic.mx";
+                                    document.getElementById('modal_descrip-start').innerHTML = "Perfecto! Te estamos redirigiendo...";
+
+                                    document.getElementById('startModal').classList.add("show");
+                                    document.getElementById('startModal').style.display = "block";
+                                    document.getElementById('startModal').style.background = "#5A5977";
+                                    let intervalID
+                                    if(!intervalID)intervalID = setInterval(() => {
+                                        window.location.href = "https://www.fiscoclic.mx";
+                                        clearInterval(intervalID)
+                                        intervalID = null;
+                                    }, 2000)
+
                                 }
                             }
                             else if(data['not_find_face'] == true)takeawhile("not_find_face")
@@ -132,6 +153,7 @@
                 let intervalID
                 if(!intervalID)intervalID = setInterval(() => {
                     sendImagefromCanvas();
+                    window.navigator.vibrate(300);
                     document.getElementById('waiting').style.display = "block";
                     clearInterval(intervalID)
                     intervalID = null;
@@ -172,6 +194,7 @@
                     sendImagefromCanvas()
                     console.log(j)
                     if(j == 25){
+                        window.navigator.vibrate(300);
                         document.getElementById('waiting').style.display = "block";
                         clearInterval(intervalID)
                         intervalID = null;

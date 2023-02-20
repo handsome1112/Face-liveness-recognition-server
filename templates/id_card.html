@@ -155,24 +155,23 @@
                 sendImagefromCanvas();
             };
             
-            console.log(navigator.userAgent);
             if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)){
                 window.onload = function () {
-                video = document.getElementById("myVideo");
-                navigator.mediaDevices
-                    .getUserMedia({ 
-                        video: {
-                            facingMode: 'environment'
-                        },
-                        audio: false }
-                    )
-                    .then((stream) => {
-                        video.srcObject = stream;
-                        video.play();
-                    })
-                    .catch((err) => {
-                        console.error(`An error occurred: ${err}`);
-                    });
+                    video = document.getElementById("myVideo");
+                    navigator.mediaDevices
+                        .getUserMedia({ 
+                            video: {
+                                facingMode: 'environment'
+                            },
+                            audio: false 
+                        })
+                        .then((stream) => {
+                            video.srcObject = stream;
+                            video.play();
+                        })
+                        .catch((err) => {
+                            console.error(`An error occurred: ${err}`);
+                        });
                 };
             }
             else {

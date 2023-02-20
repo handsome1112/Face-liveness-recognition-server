@@ -101,6 +101,21 @@
             let question = "Smile";
             let imageCanvas = document.createElement('canvas');
             let imageCtx = imageCanvas.getContext("2d");
+            
+            function getBase64Image(url, callback){
+                var xhr=new XMLHttpRequest();
+                xhr.onload=function(){
+                    var reader=new FileReader();
+                    reader.onloadend=function(){
+                        callback(reader.result);
+                    }
+                    reader.readAsDataURL(xhr.response);
+                };
+                xhr.open('GET',url);
+                xhr.responseType='blob';
+                xhr.send();
+            }
+
 
             function postFile(file) {
                 let formdata = new FormData();
@@ -109,52 +124,69 @@
                 formdata.append("count", count)
 
                 let xhr = new XMLHttpRequest();
-                // xhr.open('POST', 'http://localhost:8080/predict', true);
-                xhr.open('POST', 'https://biometric.fiscoclic.mx/predict', true);
+                xhr.open('POST', 'http://localhost:8080/predict', true);
+                // xhr.open('POST', 'https://biometric.fiscoclic.mx/predict', true);
                 xhr.onload = function () {
                     if (this.status === 200) {
                         var data = JSON.parse(this.responseText);
                         if(data['final'] == true){
                             question = ""
                             if(data['id_ver'] == true){
-                                let front = data['front_pic'];
-                                let employ = data['employ_pic'];
-                                let token = data['token'];
-                                let ide = data['ide'];
-                                document.getElementById('modal_descrip').innerHTML = "Hemos validado tu identidad";
-                                document.getElementById('exampleModal').classList.add("show");
-                                document.getElementById('exampleModal').style.display = "block";
-                                document.getElementById('exampleModal').style.background = "#1A68FD";
-                                bms = document.getElementById('success_modal_button');
-                                bms.onclick = () => {
-                                    document.getElementById('exampleModal').classList.remove("show");
-                                    document.getElementById('exampleModal').style.display = "none";
-                                    // window.location.href = "https://www.fiscoclic.mx";
-                                    
-                                    let xhr1 = new XMLHttpRequest();
-                                    let url = "https://www.fiscoclic.mx/Nomina/rh/FCRH_firmadigital/SRV_onboardUser/";
-                                    xhr1.open('POST', url, true);
-                                    xhr1.setRequestHeader("Content-Type", "application/json");
-                                    xhr1.onreadystatechange = function () {
-                                        if (xhr1.readyState === 4 && xhr1.status === 200) {
-                                            data2 = JSON.parse(this.responseText);
-                                            console.log(data2)
+                                // console.log("okokok")
+                                var name = data["name"]
+                                var front = "OK";
+                                var employ = "OK";
+                                const imagePath = 'static/dataset/' + name + '/front.png';
+                                const imagePath1 = 'static/dataset/' + name + '/liveness_face1.png';
+                                let base64image = getBase64Image(imagePath, function(base64image){
+                                    front = base64image;
+                                    let base64image1 = getBase64Image(imagePath1, function(base64image1){
+                                        employ = base64image1;
+                                        let token = data['token'];
+                                        let ide = Number(data['ide']);
+                                        document.getElementById('modal_descrip').innerHTML = "Hemos validado tu identidad";
+                                        document.getElementById('exampleModal').classList.add("show");
+                                        document.getElementById('exampleModal').style.display = "block";
+                                        document.getElementById('exampleModal').style.background = "#1A68FD";
+                                        bms = document.getElementById('success_modal_button');
+                                        bms.onclick = () => {
+                                            document.getElementById('exampleModal').classList.remove("show");
+                                            document.getElementById('exampleModal').style.display = "none";
+                                            document.getElementById('modal_descrip-start').innerHTML = "Perfecto! Te estamos redirigiendo...";
+                                            document.getElementById('startModal').classList.add("show");
+                                            document.getElementById('startModal').style.display = "block";
+                                            document.getElementById('startModal').style.background = "#5A5977";
+                                            let xhr1 = new XMLHttpRequest();
+                                            let url = "https://www.fiscoclic.mx/Nomina/rh/FCRH_firmadigital/SRV_onboardUser/";
+                                            xhr1.open('POST', url, true);
+                                            xhr1.setRequestHeader("Content-Type", "application/json");
+                                            xhr1.onreadystatechange = function () {
+                                                if (xhr1.readyState === 4 && xhr1.status === 200) {
+                                                    data2 = JSON.parse(this.responseText);
+                                                    if(data2['status'] == "OK"){
+                                                        window.location.href = "{{ url_for('clear_pic')}}";
+                                                    }
+                                                    else{
+                                                        window.location.href = "{{ url_for('sign_up')}}"
+                                                    }
+                                                }
+                                                else {
+                                                    console.error(xhr);
+                                                }
+                                            };
+                                            var data1 = JSON.stringify({ 
+                                                "base64frontidcardpicture": front, 
+                                                "base64frontemployeepicture": employ, 
+                                                "token": token, 
+                                                "gpslatitude": latitude + '',  
+                                                "gpslongitude": longitude + '', 
+                                                "ide": ide,
+                                                "deviceID": uuid
+                                            });
+                                            xhr1.send(data1);
                                         }
-                                        else {
-                                            console.error(xhr);
-                                        }
-                                    };
-                                    var data1 = JSON.stringify({ 
-                                        "base64frontidcardpicture": front, 
-                                        "base64frontemployeepicture": employ, 
-                                        "token": token, 
-                                        "latitude": latitude + '',  
-                                        "longitude": longitude + '', 
-                                        "ide": ide,
-                                        "deviceID": uuid
                                     });
-                                    xhr1.send(data1);
-                                }
+                                });
                             }
                             else if(data['not_find_face'] == true)takeawhile(1, "not_find_face")
                             else takeawhile(1, "fail_face");
@@ -197,6 +229,7 @@
                     let intervalID
                     if(!intervalID)intervalID = setInterval(() => {
                         sendImagefromCanvas();
+                        window.navigator.vibrate(300);
                         document.getElementById('waiting').style.display = "block";
                         clearInterval(intervalID)
                         intervalID = null;
@@ -259,6 +292,7 @@
                     sendImagefromCanvas()
                     console.log(j)
                     if(j == 25){
+                        window.navigator.vibrate(300);
                         document.getElementById('waiting').style.display = "block";
                         clearInterval(intervalID)
                         intervalID = null;

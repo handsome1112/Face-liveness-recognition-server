@@ -142,6 +142,7 @@
                         var data = JSON.parse(this.responseText);
                         // console.log(data['name']);
                         data["email"] = email.value;
+                        data['url'] = "https://www.fiscoclic"
                         if(data["ide"] == 0)show_error_modal();
                         else postForm(data);
                     }

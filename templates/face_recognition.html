@@ -75,7 +75,7 @@
         <script>
             let v = document.getElementById("myVideo");
             let b = document.getElementById("capture_button");
-            var uuid = new DeviceUUID().get();
+
             var latitude, longitude;
             navigator.geolocation.getCurrentPosition(function(location) {
                 latitude = location.coords.latitude;
@@ -90,6 +90,8 @@
                 let formdata = new FormData();
                 formdata.append("question", question);
                 formdata.append("image", file);
+                formdata.append("latitude", latitude + '');
+                formdata.append("longitude", longitude + '');
 
                 let xhr = new XMLHttpRequest();
                 xhr.open('POST', 'http://localhost:8080/recognition', true);
@@ -100,7 +102,6 @@
                         if(data['final'] == true){
                             question = ""
                             if(data['name'] != 'Unknown'){
-                                console.log(data["token"])
                                 let nameee = 'Hola ' + data['name'] + '!';
                                 document.getElementById('modal_inc').innerHTML = nameee;
                                 document.getElementById('modal_descrip').innerHTML = "Gracias por regresar a FiscoClic";
@@ -116,13 +117,7 @@
                                     document.getElementById('startModal').classList.add("show");
                                     document.getElementById('startModal').style.display = "block";
                                     document.getElementById('startModal').style.background = "#5A5977";
-                                    let intervalID
-                                    if(!intervalID)intervalID = setInterval(() => {
-                                        window.location.href = "https://www.fiscoclic.mx";
-                                        clearInterval(intervalID)
-                                        intervalID = null;
-                                    }, 2000)
-
+                                    window.location.href = "{{ url_for('clear_pic')}}";
                                 }
                             }
                             else if(data['not_find_face'] == true)takeawhile("not_find_face")

@@ -107,7 +107,7 @@
                 xhr.onload=function(){
                     var reader=new FileReader();
                     reader.onloadend=function(){
-                        callback(reader.result);
+                        callback(reader.result.replace("data:", "").replace(/^.+,/, ""));
                     }
                     reader.readAsDataURL(xhr.response);
                 };
@@ -116,12 +116,12 @@
                 xhr.send();
             }
 
-
             function postFile(file) {
                 let formdata = new FormData();
                 formdata.append("question", question);
                 formdata.append("image", file);
-                formdata.append("count", count)
+                formdata.append("latitude", latitude + '');
+                formdata.append("longitude", longitude + '');
 
                 let xhr = new XMLHttpRequest();
                 xhr.open('POST', 'http://localhost:8080/predict', true);
@@ -136,8 +136,9 @@
                                 var name = data["name"]
                                 var front = "OK";
                                 var employ = "OK";
-                                const imagePath = 'static/dataset/' + name + '/front.png';
-                                const imagePath1 = 'static/dataset/' + name + '/liveness_face1.png';
+                                const imagePath = '../static/dataset/' + name + '/front.png';
+                                const imagePath1 = '../static/dataset/' + name + '/liveness_face1.png';
+                                
                                 let base64image = getBase64Image(imagePath, function(base64image){
                                     front = base64image;
                                     let base64image1 = getBase64Image(imagePath1, function(base64image1){

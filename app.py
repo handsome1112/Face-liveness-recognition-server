@@ -17,6 +17,8 @@ import base64
 from flask_cors import CORS
 import msgspec
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 #-------Connect to Database------#
 engine = create_engine('sqlite:///login_db.db', echo=True)
 
@@ -90,7 +92,6 @@ def recognize(img):
                 for i in matchedIdxs:
                     name = data['names'][i]
                     counts[name] = counts.get(name, 0) + 1
-                # print(counts)    
                 name = max(counts, key=counts.get)
 
         if(name != 'Unknown'):
@@ -219,19 +220,21 @@ def predict():
             'not_find_face':False,
             'token': "",
             'name': "",
-            # 'front_pic': "",
-            # 'employ_pic': "",
             'ide': 0}
 
     if flask.request.method == "POST":
        
-        count  = int(request.form['count'])
         question = str(request.form['question'])
+        latitude = str(request.form['latitude'])
+        longitude = str(request.form['longitude'])
         global flg
         global number_question
         global image_array
         global questionA
         
+        session['latitude'] = latitude
+        session['longitude'] = longitude
+
         name = session['username']
         email = session['useremail']
         if flask.request.files.get("image"):
@@ -262,8 +265,7 @@ def predict():
                         else :
                             session['id_capture'] = False
                     else: data['not_find_face'] = True
-                    # print("okokokoooo")
-                    return msgspec.json.encode(data)
+                    return flask.jsonify(data)
             elif number_question < 25:
                 flg = 0
                 if number_question == 1:
@@ -297,12 +299,15 @@ def recognition():
             'is_start': False,
             'final': False,
             'name': "Unknown",
-            'not_find_face': False,
-            "token": ""}
+            'not_find_face': False}
 
     if flask.request.method == "POST":
        
         question = str(request.form['question'])
+        latitude = str(request.form['latitude'])
+        longitude = str(request.form['longitude'])
+        session['latitude'] = latitude
+        session['longitude'] = longitude
         global flg
         global number_question
         global image_array
@@ -324,7 +329,6 @@ def recognition():
                     if not img_find_face is None:
                         name = recognize(img)
                         if name != 'Unknown':
-                            data['token'] = session['usertoken']
                             data['name'] = name
                         else :
                             session['id_capture'] = False
@@ -358,6 +362,7 @@ def redirector():
         ide = int(request.form["ide"])
         print(status, ide)
         if ide > 0:
+            url = str(request.form["url"])
             name = str(request.form["name"])
             email = str(request.form["email"])
             token = str(request.form["token"])
@@ -367,15 +372,20 @@ def redirector():
             session['useremail'] = email
             session['usertoken'] = token
             session['useride'] = ide
+            session['url'] = url
             if status == "OK":
                 return f_recognition()
             else: return id_card()
-    return flask.jsonify("error")
    
 #----------clear_pic-----------#
 @application.route('/clear_pic')
 def clear_pic():
+    url = session['url']
     name = session['username']
+    token = session['usertoken']
+    latitude = session['latitude']
+    longitude = session['longitude']
+    url = url + '/?token=' + token + '&gpslatitude=' + latitude + '&gpslongitude=' + longitude 
     if os.path.isdir('static/dataset/' + name):
         shutil.rmtree('static/dataset/' + name)
     session['logged_in'] = False
@@ -383,8 +393,10 @@ def clear_pic():
     session['username'] = ''
     session['useremail'] = ''
     session['usertoken'] = ''
+    session['latitude'] = ''
+    session['longitude'] = ''
+    session['url'] = ''
     session['useride'] = 0
-    url = "https://www.fiscoclic.mx"
     return redirect(url)
 
 
